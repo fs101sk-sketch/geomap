@@ -7,22 +7,41 @@
 <meta name="theme-color" content="#04352C">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
-<style>body{margin:0;font-family:system-ui,Tahoma,sans-serif;background:#eef2f0;color:#0c2a24;display:grid;place-items:center;min-height:100vh}.box{max-width:520px;padding:28px;text-align:center}.spin{width:42px;height:42px;border:4px solid #cbd8d3;border-top-color:#00795c;border-radius:50%;margin:0 auto 16px;animation:s 1s linear infinite}@keyframes s{to{transform:rotate(360deg)}}small{color:#5e7570}</style>
+<style>
+body{margin:0;font-family:system-ui,Tahoma,sans-serif;background:#eef2f0;color:#0c2a24;display:grid;place-items:center;min-height:100vh}.box{max-width:560px;padding:28px;text-align:center}.spin{width:42px;height:42px;border:4px solid #cbd8d3;border-top-color:#00795c;border-radius:50%;margin:0 auto 16px;animation:s 1s linear infinite}@keyframes s{to{transform:rotate(360deg)}}small{color:#5e7570}button{margin-top:14px;padding:10px 16px;border:0;border-radius:10px;background:#00795c;color:#fff;font:inherit;cursor:pointer}
+</style>
 </head>
-<body><div class="box"><div class="spin"></div><h2>جاري تشغيل خريطة المنشآت…</h2><small id="msg">تحميل التطبيق</small></div>
+<body>
+<div class="box"><div class="spin"></div><h2>جاري تشغيل خريطة المنشآت…</h2><small id="msg">تحميل التطبيق</small><div><button id="retry" hidden>إعادة المحاولة</button></div></div>
 <script>
-(async()=>{
+const VERSION='2026-08-06-3';
+const files=Array.from({length:10},(_,i)=>`./payload/chunk-${String(i).padStart(2,'0')}.txt?v=${VERSION}`);
+async function boot(){
  const msg=document.getElementById('msg');
+ const retry=document.getElementById('retry');
+ retry.hidden=true;
  try{
-  const r=await fetch('./payload/part-00.txt',{cache:'no-store'});
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  const b64=(await r.text()).trim();
-  const bin=atob(b64);
-  const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
   if(!('DecompressionStream' in window)) throw new Error('المتصفح قديم ولا يدعم فك ضغط التطبيق');
+  const parts=[];
+  for(let i=0;i<files.length;i++){
+   msg.textContent=`تحميل التطبيق ${i+1} من ${files.length}`;
+   const r=await fetch(files[i],{cache:'no-store'});
+   if(!r.ok) throw new Error(`تعذر تحميل الجزء ${i+1} (${r.status})`);
+   parts.push((await r.text()).trim());
+  }
+  const b64=parts.join('');
+  const bin=atob(b64);
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  msg.textContent='تشغيل التطبيق…';
   const ds=new DecompressionStream('gzip');
   const html=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
-  document.open(); document.write(html); document.close();
- }catch(e){console.error(e); msg.textContent='تعذر تشغيل التطبيق: '+e.message;}
-})();
-</script></body></html>
+  document.open();document.write(html);document.close();
+ }catch(e){console.error(e);msg.textContent='تعذر تشغيل التطبيق: '+e.message;retry.hidden=false;}
+}
+document.getElementById('retry').addEventListener('click',boot);
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(console.error);}
+boot();
+</script>
+</body>
+</html>
