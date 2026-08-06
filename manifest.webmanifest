@@ -1,0 +1,21 @@
+{
+  "name": "خريطة المنشآت الصحية وجدولة زيارات المقيمين",
+  "short_name": "خريطة المنشآت",
+  "description": "خريطة تفاعلية للمنشآت الصحية وجدولة زيارات المقيمين",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EEF2F0",
+  "theme_color": "#04352C",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
