@@ -14,8 +14,10 @@ body{margin:0;font-family:system-ui,Tahoma,sans-serif;background:#eef2f0;color:#
 <body>
 <div class="box"><div class="spin"></div><h2>جاري تشغيل خريطة المنشآت…</h2><small id="msg">تحميل التطبيق</small><div><button id="retry" hidden>إعادة المحاولة</button></div></div>
 <script>
-const VERSION='2026-08-06-4';
-const files=Array.from({length:10},(_,i)=>`./payload/chunk-${String(i).padStart(2,'0')}.txt?v=${VERSION}`);
+const VERSION='2026-08-07-1';
+const files=[
+ './payload/chunk-00.txt','./payload/chunk-01.txt','./payload/chunk-02.txt','./payload/chunk-03.txt','./payload/chunk-04.txt','./payload/chunk-05.txt','./payload/chunk-06.txt','./payload/chunk-07a.txt','./payload/chunk-07b.txt','./payload/chunk-08.txt','./payload/chunk-09.txt'
+].map(x=>`${x}?v=${VERSION}`);
 async function boot(){
  const msg=document.getElementById('msg');
  const retry=document.getElementById('retry');
